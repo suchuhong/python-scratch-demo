@@ -6,6 +6,7 @@
 import os
 import sys
 import importlib.util
+import subprocess
 
 
 def clear_screen():
@@ -70,17 +71,15 @@ def run_script(script_name):
     """运行指定的脚本"""
     print(f"\n正在启动 {script_name}...")
     
-    # 动态导入并运行脚本
+    # 使用subprocess运行脚本，确保正确处理输入输出
     try:
         # 构建绝对路径
         script_path = os.path.join(os.path.dirname(__file__), script_name)
         
-        # 使用exec执行脚本
-        with open(script_path, 'r', encoding='utf-8') as file:
-            script_content = file.read()
+        # 使用Python解释器运行脚本
+        python_executable = sys.executable
+        subprocess.run([python_executable, script_path], check=True)
         
-        # 在新的作用域中执行，避免变量冲突
-        exec(script_content, {'__file__': script_path})
     except Exception as e:
         print(f"运行脚本时出错: {e}")
 
