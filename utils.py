@@ -21,13 +21,35 @@ from selenium.common.exceptions import (
     ElementNotInteractableException,
     StaleElementReferenceException
 )
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
+# 尝试导入webdriver_manager，但不再将其作为必需依赖
+try:
+    from webdriver_manager.chrome import ChromeDriverManager
+    from webdriver_manager.firefox import GeckoDriverManager
+    WEBDRIVER_MANAGER_AVAILABLE = True
+
+    # 尝试从不同的位置导入ChromeType，适应不同版本的webdriver_manager
+    try:
+        # 较新版本的webdriver_manager
+        from webdriver_manager.core.utils import ChromeType
+    except ImportError:
+        try:
+            # 较旧版本的webdriver_manager
+            from webdriver_manager.utils import ChromeType
+        except ImportError:
+            # 如果无法导入，创建一个简单的枚举类替代
+            class ChromeType:
+                GOOGLE = "GOOGLE"
+                CHROMIUM = "CHROMIUM"
+                MSEDGE = "MSEDGE"
+except ImportError:
+    WEBDRIVER_MANAGER_AVAILABLE = False
+    print("webdriver_manager 未安装，将使用 Selenium 自动驱动管理")
 
 
 def setup_chrome_driver(headless: bool = False, disable_images: bool = False) -> Chrome:
     """
     Set up Chrome WebDriver with optional configurations
+    使用 Selenium 4 自动驱动管理功能，不再依赖 webdriver_manager
     
     Args:
         headless: Run browser in headless mode (no UI)
@@ -36,22 +58,67 @@ def setup_chrome_driver(headless: bool = False, disable_images: bool = False) ->
     Returns:
         Configured Chrome WebDriver instance
     """
+    print("设置 Chrome WebDriver...")
     options = ChromeOptions()
     if headless:
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")  # 新版Chrome使用的headless参数
         options.add_argument("--disable-gpu")
     
+    # 基本设置
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--remote-allow-origins=*")  # 解决跨域问题
+    
+    # 禁用webdriver特征标识，避免被网站检测
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
     
     if disable_images:
         prefs = {"profile.managed_default_content_settings.images": 2}
         options.add_experimental_option("prefs", prefs)
     
-    service = ChromeService(ChromeDriverManager().install())
-    driver = Chrome(service=service, options=options)
-    return driver
+    # 方法1：直接使用 Selenium 4 的自动驱动管理（推荐）
+    try:
+        print("使用 Selenium 4 自动驱动管理功能...")
+        driver = Chrome(options=options)
+        print("成功创建 Chrome WebDriver 实例")
+        return driver
+    except Exception as e:
+        print(f"使用自动驱动管理创建 WebDriver 失败: {e}")
+        
+        # 方法2：如果 webdriver_manager 可用，尝试使用它
+        if WEBDRIVER_MANAGER_AVAILABLE:
+            try:
+                print("尝试使用 webdriver_manager...")
+                # 尝试各种安装方法
+                try:
+                    service = ChromeService(ChromeDriverManager().install())
+                except Exception as e2:
+                    print(f"标准安装方法失败: {e2}")
+                    try:
+                        service = ChromeService(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
+                    except Exception:
+                        print("所有 webdriver_manager 方法都失败，使用基本 Service")
+                        service = ChromeService()
+                
+                driver = Chrome(service=service, options=options)
+                print("使用 webdriver_manager 成功创建 WebDriver")
+                return driver
+            except Exception as e3:
+                print(f"所有方法都失败: {e3}")
+                raise
+        else:
+            # 如果 webdriver_manager 不可用，重新尝试基本方法
+            print("再次尝试直接创建 WebDriver...")
+            try:
+                service = ChromeService()
+                driver = Chrome(service=service, options=options)
+                print("成功创建 Chrome WebDriver 实例")
+                return driver
+            except Exception as e4:
+                print(f"所有创建 WebDriver 方法都失败: {e4}")
+                raise
 
 
 def setup_firefox_driver(headless: bool = False) -> Firefox:
@@ -68,10 +135,26 @@ def setup_firefox_driver(headless: bool = False) -> Firefox:
     if headless:
         options.add_argument("--headless")
     
-    service = FirefoxService(GeckoDriverManager().install())
-    driver = Firefox(service=service, options=options)
-    driver.set_window_size(1920, 1080)
-    return driver
+    # 直接使用 Selenium 4 自动驱动管理
+    try:
+        driver = Firefox(options=options)
+        driver.set_window_size(1920, 1080)
+        return driver
+    except Exception as e:
+        print(f"使用 Selenium 自动驱动管理创建 Firefox WebDriver 失败: {e}")
+        
+        # 尝试使用 webdriver_manager
+        if WEBDRIVER_MANAGER_AVAILABLE:
+            try:
+                service = FirefoxService(GeckoDriverManager().install())
+                driver = Firefox(service=service, options=options)
+                driver.set_window_size(1920, 1080)
+                return driver
+            except Exception as e2:
+                print(f"使用 webdriver_manager 创建 Firefox WebDriver 失败: {e2}")
+                raise
+        else:
+            raise
 
 
 def wait_for_element(
