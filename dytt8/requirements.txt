@@ -5,5 +5,4 @@ lxml>=4.9.0
 pandas>=1.5.0
 webdriver-manager>=4.0.0
 tqdm>=4.65.0
-# 可选依赖
-colorama>=0.4.6  # 用于彩色输出 
+colorama>=0.4.6 
