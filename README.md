@@ -41,12 +41,50 @@ pip install -e .
 dytt8
 ```
 
-### 图形用户界面
+### 图形用户界面 (GUI)
+
+#### 方法1: 使用命令行工具 (推荐，安装后使用)
+
+如果已经安装了dytt8包，可以直接使用以下命令启动GUI:
 
 ```bash
-# 启动图形用户界面
+# 启动标准GUI界面
 dytt8-gui
+
+# 或者使用全功能版本
+dytt8-full --gui
 ```
+
+#### 方法2: 运行源码中的GUI模块
+
+如果没有安装包，但已下载源代码，直接运行GUI文件:
+
+```bash
+# 进入项目根目录，然后运行
+python dytt8/gui/main_gui.py
+
+# 或者使用电影专用GUI
+python dytt8/moviegui/launcher.py
+```
+
+#### 方法3: 在Python代码中启动
+
+```python
+# 在安装了包的情况下使用
+from dytt8.gui.app import main
+main()
+
+# 或者使用电影专用GUI
+from dytt8.moviegui.app import main
+main()
+```
+
+#### GUI常见问题排除
+
+- **错误: No module named 'gui.app'**: 这通常是导入路径问题，请使用方法2直接运行文件
+- **tkinter错误**: 确保已安装tkinter库，这是Python标准库的一部分，但某些精简安装可能没有包含
+- **缺少依赖**: 确保已安装所有必要的依赖 `pip install -r requirements.txt`
+- **没有Chrome浏览器**: GUI依赖Chrome浏览器执行爬虫功能，请确保已安装
 
 ### 全功能版本
 

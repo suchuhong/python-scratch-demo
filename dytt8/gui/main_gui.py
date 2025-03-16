@@ -6,12 +6,13 @@ import os
 import sys
 
 # 添加项目根目录到路径
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def start_gui():
     """启动GUI界面"""
     try:
-        from gui.app import main
+        # 使用绝对导入路径
+        from dytt8.gui.app import main
         main()
     except ImportError as e:
         print(f"GUI模块加载失败: {e}")

@@ -10,12 +10,8 @@ from tkinter import ttk
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# 导入选项卡模块
-from gui.tabs.scraper_tab import ScraperTab
-from gui.tabs.finder_tab import FinderTab
-from gui.tabs.recommend_tab import RecommendTab
-from gui.tabs.scheduler_tab import SchedulerTab
-from gui.tabs.settings_tab import SettingsTab
+# 仅导入现有的选项卡模块
+from dytt8.gui.tabs.scraper_tab import ScraperTab
 
 class MovieToolkitGUI:
     def __init__(self, root):
@@ -48,16 +44,14 @@ class MovieToolkitGUI:
         
         # 创建各个功能的选项卡
         self.scraper_tab = ScraperTab(self.tab_control)
-        self.finder_tab = FinderTab(self.tab_control)
-        self.recommend_tab = RecommendTab(self.tab_control)
-        self.scheduler_tab = SchedulerTab(self.tab_control)
-        self.settings_tab = SettingsTab(self.tab_control)
         
         self.tab_control.add(self.scraper_tab.frame, text="电影抓取")
-        self.tab_control.add(self.finder_tab.frame, text="电影搜索")
-        self.tab_control.add(self.recommend_tab.frame, text="电影推荐")
-        self.tab_control.add(self.scheduler_tab.frame, text="定时任务")
-        self.tab_control.add(self.settings_tab.frame, text="设置")
+        
+        # 创建临时占位标签提示其他功能未实现
+        for tab_name in ["电影搜索", "电影推荐", "定时任务", "设置"]:
+            temp_frame = ttk.Frame(self.tab_control, padding="20")
+            ttk.Label(temp_frame, text=f"{tab_name}功能正在开发中...", font=("Arial", 14)).pack(pady=100)
+            self.tab_control.add(temp_frame, text=tab_name)
         
         self.tab_control.pack(expand=1, fill=tk.BOTH)
         
