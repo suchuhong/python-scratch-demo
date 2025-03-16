@@ -1,0 +1,12 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include dytt8/gui/resources *
+recursive-include dytt8/moviegui *
+recursive-include dytt8/data *
+recursive-include dytt8/api/templates *
+recursive-include dytt8/api/static *
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *$py.class 

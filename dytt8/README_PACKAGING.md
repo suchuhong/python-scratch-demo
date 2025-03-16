@@ -1,3 +1,81 @@
+# 打包和分发指南
+
+本文档提供了如何打包和分发dytt8项目的详细说明。
+
+## 准备工作
+
+确保已安装以下工具：
+
+```bash
+pip install setuptools wheel twine
+```
+
+## 打包步骤
+
+1. 确保setup.py、MANIFEST.in和README.md文件已正确配置
+
+2. 生成源代码分发包和wheel包：
+
+```bash
+python setup.py sdist bdist_wheel
+```
+
+这将在`dist/`目录下创建两个文件：
+- `dytt8-1.0.0.tar.gz` - 源代码分发包
+- `dytt8-1.0.0-py3-none-any.whl` - wheel包
+
+## 本地安装测试
+
+在发布前，建议先在本地安装测试：
+
+```bash
+pip install dist/dytt8-1.0.0-py3-none-any.whl
+```
+
+测试命令行工具是否正常工作：
+
+```bash
+dytt8
+dytt8-gui
+dytt8-full --help
+```
+
+## 上传到PyPI
+
+1. 测试上传到TestPyPI（可选）：
+
+```bash
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+```
+
+2. 上传到PyPI：
+
+```bash
+twine upload dist/*
+```
+
+## 创建GitHub发布版本
+
+1. 在GitHub上创建一个新的发布版本
+2. 上传生成的分发包
+3. 添加发布说明，包括新功能和修复的bug
+
+## 更新版本
+
+当需要更新版本时：
+
+1. 更新`setup.py`中的版本号
+2. 更新`dytt8/__init__.py`中的版本号（如果有）
+3. 更新CHANGELOG.md（如果有）
+4. 重新生成分发包并上传
+
+## 注意事项
+
+- 确保所有必要的文件都包含在MANIFEST.in中
+- 测试在不同操作系统上的安装和运行
+- 检查依赖项是否正确声明
+- 确保README.md中的安装和使用说明是最新的
+
 # 电影天堂工具集 - 跨平台打包指南
 
 本文档提供了多种方法来打包电影天堂工具集，使其能够在不同的操作系统上运行。
